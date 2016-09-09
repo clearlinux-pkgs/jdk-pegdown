@@ -1,0 +1,63 @@
+find . -name "*.class" -delete
+find . -name "*.jar" -delete
+
+cp -p %{SOURCE1} pom.xml
+
+python3 /usr/share/java-utils/pom_editor.py pom_xpath_inject   "pom:project" "
+
+<build>
+  <plugins>
+
+  </plugins>
+</build>"
+
+python3 /usr/share/java-utils/pom_editor.py pom_xpath_inject   "pom:build" "
+
+<resources>
+  <resource>
+    <directory>.</directory>
+    <targetPath>\${project.build.outputDirectory}/META-INF</targetPath>
+    <includes>
+      <include>LICENSE</include>
+      <include>NOTICE</include>
+    </includes>
+  </resource>
+</resources>"
+
+python3 /usr/share/java-utils/pom_editor.py pom_add_plugin     org.apache.maven.plugins:maven-jar-plugin . "
+
+<configuration>
+  <archive>
+    <manifestFile>\${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+    <manifest>
+      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+    </manifest>
+  </archive>
+</configuration>"
+
+python3 /usr/share/java-utils/pom_editor.py pom_add_plugin     org.apache.felix:maven-bundle-plugin . "
+
+<extensions>true</extensions>
+<configuration>
+  <instructions>
+    <Built-By>\${user.name}</Built-By>
+    <Bundle-SymbolicName>org.pegdown</Bundle-SymbolicName>
+    <Bundle-Name>pegdown</Bundle-Name>
+    <Bundle-Vendor>pegdown.org</Bundle-Vendor>
+    <Bundle-Version>\${project.version}</Bundle-Version>
+  </instructions>
+</configuration>
+<executions>
+  <execution>
+    <id>bundle-manifest</id>
+    <phase>process-classes</phase>
+    <goals>
+      <goal>manifest</goal>
+    </goals>
+  </execution>
+</executions>"
+
+rm -r src/test/scala/*
+python3 /usr/share/java-utils/pom_editor.py pom_remove_dep org.specs2:specs2_2.9.3
+python3 /usr/share/java-utils/mvn_file.py :pegdown pegdown
