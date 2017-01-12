@@ -1,6 +1,6 @@
 Name     : jdk-pegdown
 Version  : 1.4.2
-Release  : 2
+Release  : 3
 URL      : https://github.com/sirthias/pegdown/archive/1.4.2.tar.gz
 Source0  : https://github.com/sirthias/pegdown/archive/1.4.2.tar.gz
 Source1  : http://repo1.maven.org/maven2/org/pegdown/pegdown/1.4.2/pegdown-1.4.2.pom
